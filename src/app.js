@@ -29,7 +29,7 @@ connectDB();
 app.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:3000",
-   "https://appointmentsystemfrontend-production-aef8.up.railway.app",
+   "https://appointment-system-frontend-nz2l.onrender.com",
   ];
 
   const origin = req.headers.origin;

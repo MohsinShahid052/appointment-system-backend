@@ -29,6 +29,7 @@ connectDB();
 app.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:3000",
+    "https://milano-booking.com",
    "https://appointment-system-frontend-nz2l.onrender.com",
   ];
 

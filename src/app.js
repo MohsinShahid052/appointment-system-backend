@@ -19,17 +19,22 @@ import publicRoutes from "./routes/publicRoutes.js";
 
 const app = express();
 
+const normalizeOrigin = (origin = "") => origin.trim().replace(/\/$/, "");
+
 const envOrigins = (process.env.FRONTEND_URLS || "")
   .split(",")
-  .map((origin) => origin.trim())
+  .map(normalizeOrigin)
   .filter(Boolean);
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://milano-booking.com/",
+  "https://milano-booking.com",
+  "https://www.milano-booking.com",
   "https://appointmentsystemfrontend-production-aef8.up.railway.app",
   ...envOrigins,
 ];
+
+const allowedOriginSet = new Set(allowedOrigins.map(normalizeOrigin));
 
 // DB Connection
 connectDB();
@@ -38,8 +43,8 @@ connectDB();
    🔥 STEP 1 — FIX OPTIONS PREFLIGHT GLOBALLY
    ============================================ */
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
+  const origin = normalizeOrigin(req.headers.origin || "");
+  if (allowedOriginSet.has(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
   }
 
@@ -62,7 +67,10 @@ app.use((req, res, next) => {
    🔥 STEP 2 — Apply Actual CORS Middleware
    ============================================ */
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    return callback(null, allowedOriginSet.has(normalizeOrigin(origin)));
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept", "x-auth-token"]

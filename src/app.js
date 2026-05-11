@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "./config/env.js";
 
 import cookieParser from "cookie-parser";
 import express from "express";
@@ -20,6 +19,18 @@ import publicRoutes from "./routes/publicRoutes.js";
 
 const app = express();
 
+const envOrigins = (process.env.FRONTEND_URLS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://milano-booking.com/",
+  "https://appointmentsystemfrontend-production-aef8.up.railway.app",
+  ...envOrigins,
+];
+
 // DB Connection
 connectDB();
 
@@ -27,12 +38,6 @@ connectDB();
    🔥 STEP 1 — FIX OPTIONS PREFLIGHT GLOBALLY
    ============================================ */
 app.use((req, res, next) => {
-  const allowedOrigins = [
-    "http://localhost:3000",
-    "https://milano-booking.com",
-   "https://appointment-system-frontend-nz2l.onrender.com",
-  ];
-
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
@@ -57,10 +62,7 @@ app.use((req, res, next) => {
    🔥 STEP 2 — Apply Actual CORS Middleware
    ============================================ */
 const corsOptions = {
-  origin: [
-   "https://appointmentsystemfrontend-production-aef8.up.railway.app", // 🚀 your Railway frontend
-    "http://localhost:3000" // for local development
-  ],
+  origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept", "x-auth-token"]

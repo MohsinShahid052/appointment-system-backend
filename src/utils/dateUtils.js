@@ -1,6 +1,5 @@
 import { DateTime } from "luxon";
-import dotenv from "dotenv";
-dotenv.config();
+import "../config/env.js";
 
 const DEFAULT_ZONE = process.env.DEFAULT_TIMEZONE || "Europe/Amsterdam";
 

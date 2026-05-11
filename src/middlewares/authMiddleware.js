@@ -15,13 +15,7 @@ export const protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, keys.jwtSecret);
 
-    const user = await User.findById(decoded.id).select("-password");
-    
-    if (!user) {
-      return res.status(401).json({ message: "The user belonging to this token no longer exists." });
-    }
-    
-    req.user = user;
+    req.user = await User.findById(decoded.id).select("-password");
 
     next();
   } catch (err) {

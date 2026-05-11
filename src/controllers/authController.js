@@ -345,10 +345,17 @@ export const createBarbershop = async (req, res, next) => {
 // 3. Login for admin & barbershop user
 export const login = async (req, res, next) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-    const valid = await user.matchPassword(req.body.password);
+    const valid = await user.matchPassword(password);
     if (!valid) return res.status(401).json({ message: "Invalid credentials" });
 
     const accessToken = generateAccessToken(user);
@@ -357,14 +364,21 @@ export const login = async (req, res, next) => {
     // Set refresh token in HTTP-Only cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, // change to true in production
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
+    const safeUser = {
+      _id: user._id,
+      role: user.role,
+      barbershopId: user.barbershopId,
+      email: user.email,
+    };
+
     return res.json({
       accessToken,
-      user,
+      user: safeUser,
     });
   } catch (err) {
     next(err);

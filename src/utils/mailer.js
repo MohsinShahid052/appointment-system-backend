@@ -1,6 +1,5 @@
 import { TransactionalEmailsApi, SendSmtpEmail } from "@getbrevo/brevo";
-import dotenv from "dotenv";
-dotenv.config();
+import "../config/env.js";
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY;
 const FROM_EMAIL = process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL;

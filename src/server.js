@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "./config/env.js";
 import app from "./app.js";
 import "./jobs/reminderJob.js"; // Import the reminder job to start the cron job
 
